@@ -1,5 +1,4 @@
 import id3
-import json
 
 class TreeClassifier(object): # ID3 Decision Tree  
     def __init__(self):

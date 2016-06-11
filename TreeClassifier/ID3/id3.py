@@ -75,5 +75,6 @@ def classify(inputTree,featLabels,testVec):
     valueOfFeat = secondDict[key]
     if isinstance(valueOfFeat, dict): 
         classLabel = classify(valueOfFeat, featLabels, testVec)
-    else: classLabel = valueOfFeat
+    else: 
+        classLabel = valueOfFeat
     return classLabel                                
