@@ -59,7 +59,7 @@ def createTree(dataSet,labelsArgu):
     bestFeat = chooseBestFeatureToSplit(dataSet)
     bestFeatLabel = labels[bestFeat]
     myTree = {bestFeatLabel:{}}
-    del(labels[bestFeat])
+    labels.pop(bestFeat)
     featValues = [example[bestFeat] for example in dataSet]
     uniqueVals = set(featValues)
     for value in uniqueVals:

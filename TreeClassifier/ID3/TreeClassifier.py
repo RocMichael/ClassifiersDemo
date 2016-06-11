@@ -36,6 +36,7 @@ class TreeClassifier(object): # ID3 Decision Tree
                    [0, 1, 'no']]
         self.labels = ['no surfacing','flippers']
         self.train()
+        print(self.tree)
         print( self.classify([1,1]) )         
 
 
