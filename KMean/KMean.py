@@ -80,9 +80,19 @@ def binKMeans(dataSet, k, distMethod=distEclud):
         centers[bestCentToSplit] = bestNewCents[0, :].tolist()[0]
         centers.append(bestNewCents[1, :].tolist()[0])
         clusterAssess[nonzero(clusterAssess[:, 0].A == bestCentToSplit)[0], :] = bestClustAss
-    return mat(centers), clusterAssess
+    return centers, clusterAssess
 
 
-datMat = mat(loadDataSet('testSet.txt'))
-center, clust = binKMeans(datMat, 4)
-print(center)
+def getBestClass(centers, sample, distMethod=distEclud):
+    centers = mat(centers)
+    m = shape(centers)[0]
+    sample = mat(sample)
+    bestCenter = -1
+    minDist = inf
+    for i in range(m):
+        dist = distMethod(centers[i, :], sample)
+        if dist < minDist:
+            minDist = dist
+            bestCenter = i
+    return bestCenter, centers[bestCenter]
+

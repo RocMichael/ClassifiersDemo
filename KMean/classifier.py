@@ -21,12 +21,19 @@ class KMeanCluster:
     def train(self, k=4):
         centers, assess = KMean.binKMeans(self.dataMat, k)
         self.centers = centers
-        print(centers)
+
+    def classify(self, sample):
+        return KMean.getBestClass(self.centers, sample)
 
     def test(self):
         dataMat = self.loadDataSet('testSet.txt')
-        centers, clust = KMean.kMeans(dataMat, 4)
-        print(centers)
+        self.train()
+        print("centers:")
+        print(self.centers)
+        bestCenter, center = KMean.getBestClass(self.centers, [1, 1])
+        print("best class:")
+        print(bestCenter)
+        print(center)
 
 
 if __name__ == '__main__':
