@@ -15,6 +15,7 @@ class KMeanCluster:
             fltLine = map(float, curLine)
             dataMat.append(fltLine)
         self.dataMat = mat(dataMat)
+        # print(self.dataMat)
         return self.dataMat
 
     def train(self, k=4):
@@ -24,8 +25,8 @@ class KMeanCluster:
 
     def test(self):
         dataMat = self.loadDataSet('testSet.txt')
-        centers, clust = KMean.kMeans(dataMat, 4)
-        print(centers)
+        # centers, clust = KMean.kMeans(dataMat, 4)
+        # print(centers)
 
 
 if __name__ == '__main__':
