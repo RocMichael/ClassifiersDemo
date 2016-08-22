@@ -1,12 +1,12 @@
 from numpy import *
 
 
-def loadDataSet(fileName):      #general function to parse tab -delimited floats
-    dataMat = []                #assume last column is target value
+def loadDataSet(fileName):  # general function to parse tab -delimited floats
+    dataMat = []  # assume last column is target value
     fr = open(fileName)
     for line in fr.readlines():
         curLine = line.strip().split('\t')
-        fltLine = map(float,curLine) #map all elements to float()
+        fltLine = map(float, curLine)  # map all elements to float()
         dataMat.append(fltLine)
     return dataMat
 
@@ -43,44 +43,46 @@ def kMeans(dataSet, k, distMethod=distEclud, createCent=randCent):
                     minIndex = j
             if clusterAssess[i, 0] != minIndex:
                 clusterChanged = True
-            clusterAssess[i, :] = minIndex, minDist**2
+            clusterAssess[i, :] = minIndex, minDist ** 2
         # update center
         for cent in range(k):
-            ptsInClust = dataSet[nonzero(clusterAssess[:, 0].A==cent)[0]]
+            ptsInClust = dataSet[nonzero(clusterAssess[:, 0].A == cent)[0]]
             centers[cent, :] = mean(ptsInClust, axis=0)
     return centers, clusterAssess
 
 
-def biKmeans(dataSet, k, distMeas=distEclud):
+def binKMeans(dataSet, k, distMethod=distEclud):
     m = shape(dataSet)[0]
-    clusterAssment = mat(zeros((m,2)))
-    centroid0 = mean(dataSet, axis=0).tolist()[0]
-    centList =[centroid0] #create a list with one centroid
-    for j in range(m):#calc initial Error
-        clusterAssment[j,1] = distMeas(mat(centroid0), dataSet[j,:])**2
-    while (len(centList) < k):
-        lowestSSE = inf
-        for i in range(len(centList)):
-            ptsInCurrCluster = dataSet[nonzero(clusterAssment[:,0].A==i)[0],:]#get the data points currently in cluster i
-            centroidMat, splitClustAss = kMeans(ptsInCurrCluster, 2, distMeas)
-            sseSplit = sum(splitClustAss[:,1])#compare the SSE to the currrent minimum
-            sseNotSplit = sum(clusterAssment[nonzero(clusterAssment[:,0].A!=i)[0],1])
-            print "sseSplit, and notSplit: ",sseSplit,sseNotSplit
-            if (sseSplit + sseNotSplit) < lowestSSE:
+    clusterAssess = mat(zeros((m, 2)))
+    originCenters = mean(dataSet, axis=0).tolist()[0]
+    centers = [originCenters]
+    # get origin error
+    for j in range(m):
+        clusterAssess[j, 1] = distMethod(mat(originCenters), dataSet[j, :]) ** 2
+    # try to cluster
+    while (len(centers) < k):
+        # get best spilt
+        minError = inf
+        for i in range(len(centers)):
+            ptsInCurrCluster = dataSet[nonzero(clusterAssess[:, 0].A == i)[0], :]
+            splitCenter, splitAssess = kMeans(ptsInCurrCluster, 2, distMethod)
+            spiltError = sum(splitAssess[:, 1])
+            formerError = sum(clusterAssess[nonzero(clusterAssess[:, 0].A != i)[0], 1])
+            if (spiltError + formerError) < minError:
                 bestCentToSplit = i
-                bestNewCents = centroidMat
-                bestClustAss = splitClustAss.copy()
-                lowestSSE = sseSplit + sseNotSplit
-        bestClustAss[nonzero(bestClustAss[:,0].A == 1)[0],0] = len(centList) #change 1 to 3,4, or whatever
-        bestClustAss[nonzero(bestClustAss[:,0].A == 0)[0],0] = bestCentToSplit
-        print 'the bestCentToSplit is: ',bestCentToSplit
-        print 'the len of bestClustAss is: ', len(bestClustAss)
-        centList[bestCentToSplit] = bestNewCents[0,:].tolist()[0]#replace a centroid with two best centroids
-        centList.append(bestNewCents[1,:].tolist()[0])
-        clusterAssment[nonzero(clusterAssment[:,0].A == bestCentToSplit)[0],:]= bestClustAss#reassign new clusters, and SSE
-    return mat(centList), clusterAssment
+                bestNewCents = splitCenter
+                bestClustAss = splitAssess.copy()
+                minError = spiltError + formerError
+        # update assessment
+        bestClustAss[nonzero(bestClustAss[:, 0].A == 1)[0], 0] = len(centers)
+        bestClustAss[nonzero(bestClustAss[:, 0].A == 0)[0], 0] = bestCentToSplit
+        # update global centers and assessment
+        centers[bestCentToSplit] = bestNewCents[0, :].tolist()[0]
+        centers.append(bestNewCents[1, :].tolist()[0])
+        clusterAssess[nonzero(clusterAssess[:, 0].A == bestCentToSplit)[0], :] = bestClustAss
+    return mat(centers), clusterAssess
 
 
 datMat = mat(loadDataSet('testSet.txt'))
-center, clust = biKmeans(datMat, 4)
-print(clust)
+center, clust = binKMeans(datMat, 4)
+print(center)
