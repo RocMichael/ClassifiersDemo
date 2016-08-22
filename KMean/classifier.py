@@ -25,8 +25,8 @@ class KMeanCluster:
 
     def test(self):
         dataMat = self.loadDataSet('testSet.txt')
-        # centers, clust = KMean.kMeans(dataMat, 4)
-        # print(centers)
+        centers, clust = KMean.kMeans(dataMat, 4)
+        print(centers)
 
 
 if __name__ == '__main__':
