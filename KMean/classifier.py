@@ -22,7 +22,7 @@ class KMeanCluster:
         centers, assess = KMean.binKMeans(self.dataMat, k)
         self.centers = centers
 
-    def classify(self, sample):
+    def predict(self, sample):
         return KMean.getBestClass(self.centers, sample)
 
     def test(self):

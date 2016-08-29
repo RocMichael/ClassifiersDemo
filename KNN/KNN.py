@@ -21,7 +21,7 @@ class KNNClassifier():
         self.dataSet = dataSet
         self.labels = labels
 
-    def classify(self, data, k):
+    def predict(self, data, k):
         self.dataSet = array(self.dataSet)
         self.labels = array(self.labels)
         self._normDataSet()
@@ -53,10 +53,10 @@ class KNNClassifier():
     def test(self):
         self.dataSet = array([[1.0,1.1],[1.0,1.0],[0.9,0.9],[0,0],[0,0.1],[0,0.2]])
         self.labels = [1,1,1,2,2,2]
-        print(self.classify([1.0,1.1], 2))
+        print(self.predict([1.0,1.1], 2))
 
 if __name__ == '__main__':
     KNN = KNNClassifier()
     KNN.loadDataSet('testData.txt')
-    print(KNN.classify([72011, 4.932976, 0.632026], 5) )
+    print(KNN.predict([72011, 4.932976, 0.632026], 5) )
     # KNN.test()

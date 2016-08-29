@@ -1,5 +1,4 @@
 from numpy import *
-import matplotlib.pyplot as plt
 
 def sigmoid(X):
        return 1.0/(1+exp(-X))
@@ -63,7 +62,7 @@ class logRegressClassifier(object):
                 del(dataIndex[randIndex])
         return weights
 
-    def classify(self, X):
+    def predict(self, X):
         prob = sigmoid(sum( X * weights))
         if prob > 0.5:
             return 1.0

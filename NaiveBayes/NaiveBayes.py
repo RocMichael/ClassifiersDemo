@@ -39,7 +39,7 @@ class NaiveBayesClassifier(object):
         self.p0Vec = p0Num/p0Denom
         self.p1Vec = p1Num/p1Denom
 
-    def classify(self, data):
+    def predict(self, data):
         p1 = reduce(lambda x, y: x * y, data * self.p1Vec) * self.pLabel1
         p0 = reduce(lambda x, y: x * y, data * self.p0Vec) * (1.0 - self.pLabel1)
         if p1 > p0:
@@ -50,7 +50,7 @@ class NaiveBayesClassifier(object):
     def test(self):
         self.loadDataSet('testNB.txt')
         self.train()
-        print(self.classify([1, 2]))
+        print(self.predict([1, 2]))
 
 if __name__ == '__main__':
     NB =  NaiveBayesClassifier()
