@@ -22,7 +22,7 @@ class TreeClassifier(object): # ID3 Decision Tree
             return dict()
         self.tree = id3.createTree(self.dataSet,self.labels)
 
-    def classify(self,data):
+    def predict(self,data):
         if not (self.dataSet and self.labels):
             return None
         return id3.classify(self.tree, self.labels, data)
@@ -36,7 +36,7 @@ class TreeClassifier(object): # ID3 Decision Tree
         self.labels = ['no surfacing','flippers']
         self.train()
         print(self.tree)
-        print( self.classify([1,1]) )         
+        print( self.predict([1,1]) )         
 
 
 if __name__ == '__main__':
