@@ -1,10 +1,6 @@
 from numpy import *
 
 
-def loadDataSet():
-    return [[1, 3, 4], [2, 3, 5], [1, 2, 3, 5], [2, 5]]
-
-
 def createUnit(dataSet):  # create cell with one element
     universe = []
     for cell in dataSet:
@@ -95,15 +91,18 @@ def rulesFromConseq(cells, consequences, supports, bigRuleList, limit=0.7):
             rulesFromConseq(cells, new_consequences, supports, bigRuleList, limit)
 
 
-if __name__ == '__main__':
-    dataSet = loadDataSet()
+def test():
+    dataSet = [[1, 3, 4], [2, 3, 5], [1, 2, 3, 5], [2, 5]]
+    cells, supports = apriori(dataSet, 0.5)
+    # print(cells)
+    rules = generateRules(cells, supports)
+    print(rules)
     # units = createUnit(dataSet)
     # print(units)
     # cells, supports = filterCandidates(dataSet, units, 0.5)
     # print(cells, supports)
     # cells = createKCell(selected, 2)
     # print(cells)
-    cells, supports = apriori(dataSet, 0.5)
-    # print(cells)
-    rules = generateRules(cells, supports)
-    print(rules)
+
+if __name__ == '__main__':
+    test()
