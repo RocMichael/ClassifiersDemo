@@ -63,13 +63,47 @@ def apriori(dataMat, limit=0.5):
     return candidates, supports
 
 
+def generateRules(cells, supports, limit=0.7):
+    bigRuleList = []
+    for i in range(1, len(cells)):
+        for cell in cells[i]:
+            consequences = [frozenset([item]) for item in cell]
+            if i > 1:
+                rulesFromConseq(cell, consequences, supports, bigRuleList, limit)
+            else:
+                filterRules(cell, consequences, supports, bigRuleList, limit)
+    return bigRuleList
+
+
+def filterRules(cells, consequences, supports, bigRuleList, limit=0.7):
+    prunedConsequences = []
+    for consequence in consequences:
+        confidence = supports[cells] / supports[cells - consequence]  # calc confidence
+        if confidence >= limit:
+            rule = (cells - consequence, consequence, confidence)
+            bigRuleList.append(rule)
+            prunedConsequences.append(consequence)
+    return prunedConsequences
+
+
+def rulesFromConseq(cells, consequences, supports, bigRuleList, limit=0.7):
+    m = len(consequences[0])
+    if len(cells) > (m + 1):  # try further merging
+        new_consequences = createKCell(consequences, m + 1)  # create Hm+1 new candidates
+        new_consequences = filterRules(cells, new_consequences, supports, bigRuleList, limit)
+        if len(new_consequences) > 1:  # need at least two sets to merge
+            rulesFromConseq(cells, new_consequences, supports, bigRuleList, limit)
+
+
 if __name__ == '__main__':
     dataSet = loadDataSet()
     # units = createUnit(dataSet)
     # print(units)
-    # selected, supports = filterCandidates(dataSet, units, 0.5)
-    # print(selected, supports)
+    # cells, supports = filterCandidates(dataSet, units, 0.5)
+    # print(cells, supports)
     # cells = createKCell(selected, 2)
     # print(cells)
-    selected, supports = apriori(dataSet, 0.5)
-    print(selected)
+    cells, supports = apriori(dataSet, 0.5)
+    # print(cells)
+    rules = generateRules(cells, supports)
+    print(rules)
