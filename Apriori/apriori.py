@@ -48,27 +48,28 @@ def createKCell(origins, k):
     return cells
 
 
-def apriori(dataSet, minSupport=0.5):
-    C1 = createUnit(dataSet)
-    D = map(set, dataSet)
-    L1, supportData = filterCandidates(D, C1, minSupport)
-    L = [L1]
+def apriori(dataMat, limit=0.5):
+    units = createUnit(dataMat)
+    dataSet = map(set, dataMat)
+    origin, supports = filterCandidates(dataSet, units, limit)
+    candidates = [origin]
     k = 2
-    while (len(L[k - 2]) > 0):
-        Ck = createKCell(L[k - 2], k)
-        Lk, supK = filterCandidates(D, Ck, minSupport)  # scan DB to get Lk
-        supportData.update(supK)
-        L.append(Lk)
+    while (len(candidates[k - 2]) > 0):
+        cellK = createKCell(candidates[k - 2], k)
+        cellK, supportK = filterCandidates(dataSet, cellK, limit)
+        supports.update(supportK)
+        candidates.append(cellK)
         k += 1
-    return L, supportData
+    return candidates, supports
 
 
 if __name__ == '__main__':
     dataSet = loadDataSet()
-    units = createUnit(dataSet)
-    print(units)
-    selected, supports = filterCandidates(dataSet, units, 0.5)
-    print(selected, supports)
-    cells = createKCell(selected, 2)
-    print(cells)
-
+    # units = createUnit(dataSet)
+    # print(units)
+    # selected, supports = filterCandidates(dataSet, units, 0.5)
+    # print(selected, supports)
+    # cells = createKCell(selected, 2)
+    # print(cells)
+    selected, supports = apriori(dataSet, 0.5)
+    print(selected)
