@@ -19,7 +19,7 @@ def sigmoid(x):
     return 1.0 / (1.0 + math.exp(-x))
 
 
-def sigmod_derivate(x):
+def sigmoid_derivative(x):
     return x * (1 - x)
 
 
@@ -83,14 +83,14 @@ class BPNeuralNetwork:
         output_deltas = [0.0] * self.output_n
         for o in range(self.output_n):
             error = label[o] - self.output_cells[o]
-            output_deltas[o] = sigmod_derivate(self.output_cells[o]) * error
+            output_deltas[o] = sigmoid_derivative(self.output_cells[o]) * error
         # get hidden layer error
         hidden_deltas = [0.0] * self.hidden_n
         for h in range(self.hidden_n):
             error = 0.0
             for o in range(self.output_n):
                 error += output_deltas[o] * self.output_weights[h][o]
-            hidden_deltas[h] = sigmod_derivate(self.hidden_cells[h]) * error
+            hidden_deltas[h] = sigmoid_derivative(self.hidden_cells[h]) * error
         # update output weights
         for h in range(self.hidden_n):
             for o in range(self.output_n):
@@ -110,7 +110,7 @@ class BPNeuralNetwork:
         return error
 
     def train(self, cases, labels, limit=10000, learn=0.05, correct=0.1):
-        for i in range(limit):
+        for j in range(limit):
             error = 0.0
             for i in range(len(cases)):
                 label = labels[i]
