@@ -38,7 +38,7 @@ def int_to_bin(x, dim=0):
     return x
 
 
-class LSTM:
+class RNN:
     def __init__(self):
         self.input_n = 0
         self.hidden_n = 0
@@ -154,5 +154,5 @@ class LSTM:
                 print "==============="
 
 if __name__ == '__main__':
-    nn = LSTM()
+    nn = RNN()
     nn.test()
