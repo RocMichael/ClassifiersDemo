@@ -70,7 +70,7 @@ class RNN:
 
         return guess
 
-    def train(self, case, label, dim=0, learn=0.1):
+    def do_train(self, case, label, dim=0, learn=0.1):
         input_updates = np.zeros_like(self.input_weights)
         output_updates = np.zeros_like(self.output_weights)
         hidden_updates = np.zeros_like(self.hidden_weights)
@@ -120,6 +120,13 @@ class RNN:
 
         return guess, error
 
+    def train(self, cases, labels, dim=0, learn=0.1, limit=1000):
+        for i in range(limit):
+            for j in range(len(cases)):
+                case = cases[j]
+                label = labels[j]
+                self.do_train(case, label, dim=dim, learn=learn)
+
     def test(self):
         self.setup(2, 16, 1)
         for i in range(20000):
@@ -137,7 +144,7 @@ class RNN:
             c = int_to_bin(c_int, dim=8)
             c = np.array([int(t) for t in c])
 
-            guess, error = self.train([a, b], c, dim=8)
+            guess, error = self.do_train([a, b], c, dim=8)
 
             if i % 1000 == 0:
                 print("Error:" + str(error))
