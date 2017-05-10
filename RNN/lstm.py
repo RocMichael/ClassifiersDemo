@@ -55,10 +55,22 @@ class LSTM:
         self.output_weights = make_rand_mat(self.hidden_n, self.output_n)
         self.hidden_weights = make_rand_mat(self.hidden_n, self.hidden_n)
 
-    def predict(self, inputs):
-        pass
+    def predict(self, case, dim=0):
+        guess = np.zeros(dim)
+        hidden_layer_history = [np.zeros(self.hidden_n)]
 
-    def train(self, case=None, label=None, dim=0, learn=0.1):
+        for position in range(dim):
+            x = np.array([[c[dim - position - 1] for c in case]])
+
+            hidden_layer = sigmoid(np.dot(x, self.input_weights) + np.dot(hidden_layer_history[-1], self.hidden_weights))
+            output_layer = sigmoid(np.dot(hidden_layer, self.output_weights))
+            guess[dim - position - 1] = np.round(output_layer[0][0])  # if you don't like int, change it
+
+            hidden_layer_history.append(copy.deepcopy(hidden_layer))
+
+        return guess
+
+    def train(self, case, label, dim=0, learn=0.1):
         input_updates = np.zeros_like(self.input_weights)
         output_updates = np.zeros_like(self.output_weights)
         hidden_updates = np.zeros_like(self.hidden_weights)
@@ -66,39 +78,37 @@ class LSTM:
         guess = np.zeros_like(label)
         error = 0
 
-        layer_2_deltas = list()
-        layer_1_values = list()
-        layer_1_values.append(np.zeros(self.hidden_n))
+        output_deltas = []
+        hidden_layer_history = [np.zeros(self.hidden_n)]
 
         for position in range(dim):
             x = np.array([[c[dim - position - 1] for c in case]])
             y = np.array([[label[dim - position - 1]]]).T
 
-            layer_1 = sigmoid(np.dot(x, self.input_weights) + np.dot(layer_1_values[-1], self.hidden_weights))
-            layer_2 = sigmoid(np.dot(layer_1, self.output_weights))
+            hidden_layer = sigmoid(np.dot(x, self.input_weights) + np.dot(hidden_layer_history[-1], self.hidden_weights))
+            output_layer = sigmoid(np.dot(hidden_layer, self.output_weights))
 
-            layer_2_error = y - layer_2
-            layer_2_deltas.append((layer_2_error) * sigmoid_derivative(layer_2))
-            error += np.abs(layer_2_error[0])
+            output_error = y - output_layer
+            output_deltas.append(output_error * sigmoid_derivative(output_layer))
+            error += np.abs(output_error[0])
 
-            guess[dim - position - 1] = np.round(layer_2[0][0])
+            guess[dim - position - 1] = np.round(output_layer[0][0])
 
-            layer_1_values.append(copy.deepcopy(layer_1))
+            hidden_layer_history.append(copy.deepcopy(hidden_layer))
 
         future_layer_1_delta = np.zeros(self.hidden_n)
-
         for position in range(dim):
             x = np.array([[c[position] for c in case]])
-            layer_1 = layer_1_values[-position - 1]
-            prev_layer_1 = layer_1_values[-position - 2]
+            hidden_layer = hidden_layer_history[-position - 1]
+            prev_layer_1 = hidden_layer_history[-position - 2]
 
             # error at output layer
-            layer_2_delta = layer_2_deltas[-position - 1]
+            layer_2_delta = output_deltas[-position - 1]
             # error at hidden layer
             layer_1_delta = (future_layer_1_delta.dot(self.hidden_weights.T) +
-                             layer_2_delta.dot(self.output_weights.T)) * sigmoid_derivative(layer_1)
+                             layer_2_delta.dot(self.output_weights.T)) * sigmoid_derivative(hidden_layer)
             # let's update all our weights so we can try again
-            output_updates += np.atleast_2d(layer_1).T.dot(layer_2_delta)
+            output_updates += np.atleast_2d(hidden_layer).T.dot(layer_2_delta)
             hidden_updates += np.atleast_2d(prev_layer_1).T.dot(layer_1_delta)
             input_updates += x.T.dot(layer_1_delta)
 
@@ -137,7 +147,11 @@ class LSTM:
                 for index, x in enumerate(reversed(guess)):
                     out += x * pow(2, index)
                 print str(a_int) + " + " + str(b_int) + " = " + str(out)
-                print "==="
+
+                result = str(self.predict([a, b], dim=8))
+                print(result)
+
+                print "==============="
 
 if __name__ == '__main__':
     nn = LSTM()
