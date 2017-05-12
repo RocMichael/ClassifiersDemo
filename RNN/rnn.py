@@ -59,12 +59,12 @@ class RNN:
         guess = np.zeros(dim)
         hidden_layer_history = [np.zeros(self.hidden_n)]
 
-        for position in range(dim):
-            x = np.array([[c[dim - position - 1] for c in case]])
+        for i in range(dim):
+            x = np.array([[c[dim - i - 1] for c in case]])
 
             hidden_layer = sigmoid(np.dot(x, self.input_weights) + np.dot(hidden_layer_history[-1], self.hidden_weights))
             output_layer = sigmoid(np.dot(hidden_layer, self.output_weights))
-            guess[dim - position - 1] = np.round(output_layer[0][0])  # if you don't like int, change it
+            guess[dim - i - 1] = np.round(output_layer[0][0])  # if you don't like int, change it
 
             hidden_layer_history.append(copy.deepcopy(hidden_layer))
 
@@ -81,9 +81,9 @@ class RNN:
         output_deltas = []
         hidden_layer_history = [np.zeros(self.hidden_n)]
 
-        for position in range(dim):
-            x = np.array([[c[dim - position - 1] for c in case]])
-            y = np.array([[label[dim - position - 1]]]).T
+        for i in range(dim):
+            x = np.array([[c[dim - i - 1] for c in case]])
+            y = np.array([[label[dim - i - 1]]]).T
 
             hidden_layer = sigmoid(np.dot(x, self.input_weights) + np.dot(hidden_layer_history[-1], self.hidden_weights))
             output_layer = sigmoid(np.dot(hidden_layer, self.output_weights))
@@ -92,27 +92,25 @@ class RNN:
             output_deltas.append(output_error * sigmoid_derivative(output_layer))
             error += np.abs(output_error[0])
 
-            guess[dim - position - 1] = np.round(output_layer[0][0])
+            guess[dim - i - 1] = np.round(output_layer[0][0])
 
             hidden_layer_history.append(copy.deepcopy(hidden_layer))
 
-        future_layer_1_delta = np.zeros(self.hidden_n)
-        for position in range(dim):
-            x = np.array([[c[position] for c in case]])
-            hidden_layer = hidden_layer_history[-position - 1]
-            prev_layer_1 = hidden_layer_history[-position - 2]
+        future_hidden_layer_delta = np.zeros(self.hidden_n)
+        for i in range(dim):
+            x = np.array([[c[i] for c in case]])
+            hidden_layer = hidden_layer_history[-i - 1]
+            prev_hidden_layer = hidden_layer_history[-i - 2]
 
-            # error at output layer
-            layer_2_delta = output_deltas[-position - 1]
-            # error at hidden layer
-            layer_1_delta = (future_layer_1_delta.dot(self.hidden_weights.T) +
-                             layer_2_delta.dot(self.output_weights.T)) * sigmoid_derivative(hidden_layer)
-            # let's update all our weights so we can try again
-            output_updates += np.atleast_2d(hidden_layer).T.dot(layer_2_delta)
-            hidden_updates += np.atleast_2d(prev_layer_1).T.dot(layer_1_delta)
-            input_updates += x.T.dot(layer_1_delta)
+            output_delta = output_deltas[-i - 1]
+            hidden_delta = (future_hidden_layer_delta.dot(self.hidden_weights.T) +
+                             output_delta.dot(self.output_weights.T)) * sigmoid_derivative(hidden_layer)
 
-            future_layer_1_delta = layer_1_delta
+            output_updates += np.atleast_2d(hidden_layer).T.dot(output_delta)
+            hidden_updates += np.atleast_2d(prev_hidden_layer).T.dot(hidden_delta)
+            input_updates += x.T.dot(hidden_delta)
+
+            future_hidden_layer_delta = hidden_delta
 
         self.input_weights += input_updates * learn
         self.output_weights += output_updates * learn
@@ -130,7 +128,6 @@ class RNN:
     def test(self):
         self.setup(2, 16, 1)
         for i in range(20000):
-            # generate a simple addition problem (a + b = c)
             a_int = int(rand(0, 127))
             a = int_to_bin(a_int, dim=8)
             a = np.array([int(t) for t in a])
@@ -139,7 +136,6 @@ class RNN:
             b = int_to_bin(b_int, dim=8)
             b = np.array([int(t) for t in b])
 
-            # true answer
             c_int = a_int + b_int
             c = int_to_bin(c_int, dim=8)
             c = np.array([int(t) for t in c])
@@ -150,6 +146,7 @@ class RNN:
                 print("Error:" + str(error))
                 print("Predict:" + str(guess))
                 print("True:" + str(c))
+
                 out = 0
                 for index, x in enumerate(reversed(guess)):
                     out += x * pow(2, index)
@@ -163,3 +160,5 @@ class RNN:
 if __name__ == '__main__':
     nn = RNN()
     nn.test()
+
+
